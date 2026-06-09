@@ -1,4 +1,5 @@
 #!/bin/bash
+# 99-custom.sh — ImmortalWrt 固件构建脚本 (含多WAN聚合与QoS依赖)
 # Log file for debugging
 source shell/custom-packages.sh
 source shell/switch_repository.sh
@@ -35,7 +36,7 @@ else
   # ============= 同步第三方插件库==============
   # 同步第三方软件仓库run/ipk
   echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
-  git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
+  git clone --depth=1 https://github.com/wukongdaily/store.git  /tmp/store-run-repo
 
   # 拷贝 run/x86 下所有 run 文件和ipk文件 到 extra-packages 目录
   mkdir -p /home/build/immortalwrt/extra-packages
@@ -60,14 +61,39 @@ PACKAGES="$PACKAGES luci-i18n-firewall-zh-cn"
 PACKAGES="$PACKAGES luci-theme-argon"
 PACKAGES="$PACKAGES luci-app-argon-config"
 PACKAGES="$PACKAGES luci-i18n-argon-config-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"       # 文件管理器（仅保留一次）
-PACKAGES="$PACKAGES luci-app-partexp"                  # 一键扩容（仅保留一次）
-PACKAGES="$PACKAGES luci-app-store"                    # iStore商店
-PACKAGES="$PACKAGES luci-app-frpc luci-i18n-frpc-zh-cn frpc"  # frpc客户端
-PACKAGES="$PACKAGES openssh-sftp-server"
 #24.10
 PACKAGES="$PACKAGES luci-i18n-package-manager-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
+PACKAGES="$PACKAGES openssh-sftp-server"
+
+# 文件管理器
+PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
+
+# ======== iStore 与常用插件 =======
+PACKAGES="$PACKAGES luci-app-store"                    # iStore商店
+PACKAGES="$PACKAGES luci-app-partexp"                  # 一键扩容
+PACKAGES="$PACKAGES luci-app-frpc luci-i18n-frpc-zh-cn frpc"  # frpc内网穿透客户端
+
+# ======== OpenClash 科学上网 =======
+PACKAGES="$PACKAGES luci-app-openclash"
+PACKAGES="$PACKAGES luci-i18n-openclash-zh-cn"
+
+# ======== 广告拦截 =======
+PACKAGES="$PACKAGES luci-app-adguardhome"              # AdGuard Home 广告拦截
+
+# ======== 多WAN聚合与动态QoS依赖 (研究报告第7.1节) =======
+PACKAGES="$PACKAGES mwan3"                # 多WAN策略路由引擎
+PACKAGES="$PACKAGES kmod-ifb"             # 中间功能块 IFB
+PACKAGES="$PACKAGES kmod-sched-core"      # TC 调度核心
+PACKAGES="$PACKAGES kmod-sched-htb"       # 分层令牌桶 HTB
+PACKAGES="$PACKAGES kmod-sched-fq-codel"  # fq_codel 防缓冲膨胀
+PACKAGES="$PACKAGES kmod-sched-connmark"  # act_connmark 连接标记动作
+PACKAGES="$PACKAGES tc-full"              # 完整版 TC (含 connmark/mirred)
+PACKAGES="$PACKAGES iptables-nft"         # iptables + nftables 后端
+PACKAGES="$PACKAGES ip6tables-nft"        # ip6tables + nftables 后端
+# ======== 排障工具 ========
+PACKAGES="$PACKAGES conntrack"            # 连接跟踪排障
+PACKAGES="$PACKAGES procps-ng-watch"      # watch 命令
 
 # ======== shell/custom-packages.sh =======
 # 合并imm仓库以外的第三方插件
@@ -85,7 +111,7 @@ if echo "$PACKAGES" | grep -q "luci-app-openclash"; then
     mkdir -p files/etc/openclash/core
     # Download clash_meta
     META_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-amd64-v1.tar.gz"
-    wget -qO- $META_URL | tar xOvz > files/etc/openclash/core/clash_meta
+    wget -qO- "$META_URL" | tar xOvz > files/etc/openclash/core/clash_meta
     chmod +x files/etc/openclash/core/clash_meta
     # Download GeoIP and GeoSite
     wget -q https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat -O files/etc/openclash/GeoIP.dat
@@ -106,7 +132,6 @@ if echo "$PACKAGES" | grep -q "luci-app-ssr-plus"; then
     mkdir -p files/usr/bin
     # Download mihomo
     MIHOMO_URL="https://github.com/MetaCubeX/mihomo/releases/download/v1.19.24/mihomo-linux-amd64-compatible-v1.19.24.gz"
-    mkdir -p files/usr/bin
     wget -qO- "$MIHOMO_URL" | gzip -dc > files/usr/bin/mihomo
     chmod +x files/usr/bin/mihomo
     echo "✅ 已下载 mihomo core"
