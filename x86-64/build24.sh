@@ -76,18 +76,15 @@ PACKAGES="$PACKAGES luci-app-frpc luci-i18n-frpc-zh-cn frpc"  # frpc内网穿透
 
 # ======== OpenClash 科学上网 =======
 PACKAGES="$PACKAGES luci-app-openclash"
-PACKAGES="$PACKAGES luci-i18n-openclash-zh-cn"
+# 移除 luci-i18n-openclash-zh-cn，避免因包不存在导致安装失败（openclash界面已自带中文）
 
 # ======== 广告拦截 =======
 PACKAGES="$PACKAGES luci-app-adguardhome"              # AdGuard Home 广告拦截
 
-# ======== 多WAN聚合与动态QoS依赖 (研究报告第7.1节) =======
+# ======== 多WAN聚合与动态QoS依赖 =======
 PACKAGES="$PACKAGES mwan3"                # 多WAN策略路由引擎
 PACKAGES="$PACKAGES kmod-ifb"             # 中间功能块 IFB
-PACKAGES="$PACKAGES kmod-sched-core"      # TC 调度核心
-PACKAGES="$PACKAGES kmod-sched-htb"       # 分层令牌桶 HTB
-PACKAGES="$PACKAGES kmod-sched-fq-codel"  # fq_codel 防缓冲膨胀
-PACKAGES="$PACKAGES kmod-sched-connmark"  # act_connmark 连接标记动作
+PACKAGES="$PACKAGES kmod-sched"           # 所有调度模块 (htb, fq_codel, connmark, core 等)
 PACKAGES="$PACKAGES tc-full"              # 完整版 TC (含 connmark/mirred)
 PACKAGES="$PACKAGES iptables-nft"         # iptables + nftables 后端
 PACKAGES="$PACKAGES ip6tables-nft"        # ip6tables + nftables 后端
