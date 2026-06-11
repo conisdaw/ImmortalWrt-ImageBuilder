@@ -81,24 +81,7 @@ PACKAGES="$PACKAGES luci-app-openclash"
 # ======== 广告拦截 =======
 PACKAGES="$PACKAGES luci-app-adguardhome"              # AdGuard Home 广告拦截
 
-# ======== 多WAN聚合与动态QoS依赖 =======
-PACKAGES="$PACKAGES mwan3"                # 多WAN策略路由引擎
-PACKAGES="$PACKAGES kmod-ifb"             # 中间功能块 IFB
-PACKAGES="$PACKAGES kmod-sched"           # 所有调度模块 (htb, fq_codel, connmark, core 等)
-PACKAGES="$PACKAGES tc-full"              # 完整版 TC (含 connmark/mirred)
-PACKAGES="$PACKAGES iptables-nft"         # iptables + nftables 后端
-PACKAGES="$PACKAGES ip6tables-nft"        # ip6tables + nftables 后端
-
-# ======== nftables 动态标记与连接追踪所需组件 =======
-PACKAGES="$PACKAGES nftables"                      # nft 用户空间工具 (firewall4 已依赖，显式包含以防缺漏)
-PACKAGES="$PACKAGES kmod-nft-bridge"               # nftables bridge 家族支持 (L2 透明过滤)
-PACKAGES="$PACKAGES kmod-nf-conntrack-netlink"     # conntrack 用户态工具依赖 (conntrack -L)
-PACKAGES="$PACKAGES kmod-nf-nat"                   # 连接追踪与 NAT 辅助模块
-PACKAGES="$PACKAGES kmod-br-netfilter"             # 桥接层 netfilter 支持 (确保 bridge 家族可用)
-
-# ======== 排障工具 ========
-PACKAGES="$PACKAGES conntrack"            # 连接跟踪排障
-PACKAGES="$PACKAGES procps-ng-watch"      # watch 命令
+PACKAGES="$PACKAGES luci-i18n-mwan3-zh-cn"
 
 # ======== shell/custom-packages.sh =======
 # 合并imm仓库以外的第三方插件
